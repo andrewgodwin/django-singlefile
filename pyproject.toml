@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "django-singlefile"
+version = "0.1.0"
+authors = [{ name = "Andrew Godwin", email = "andrew@aeracode.org" }]
+description = "A library to make single-file Django apps easier"
+readme = "README.rst"
+requires-python = ">=3.10"
+license = { text = "BSD-3-Clause" }
+classifiers = ["Framework :: Django", "Programming Language :: Python :: 3"]
+dependencies = ["Django>=5"]
