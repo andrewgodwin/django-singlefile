@@ -7,6 +7,7 @@ from django.core.wsgi import get_wsgi_application
 from django.urls import path
 from django.utils.crypto import get_random_string
 from django.core.management import execute_from_command_line
+from django.singlefile.environment import EnvironmentSettings
 
 
 class SingleFileApp:
@@ -23,11 +24,12 @@ class SingleFileApp:
         previous_filename = inspect.getframeinfo(inspect.currentframe().f_back)[0]
         self.root_directory = os.path.dirname(previous_filename)
         # Do initial settings configuration
+        envsettings = EnvironmentSettings()
         settings.configure(
-            DEBUG=(os.environ.get("DJANGO_DEBUG", "") == "1"),
+            DEBUG=envsettings.get_bool("DJANGO_DEBUG"),
             ALLOWED_HOSTS=["*"],  # Disable host header validation
             ROOT_URLCONF=__name__,  # Could be fancier with middleware?
-            SECRET_KEY=os.environ.get("DJANGO_SECRET_KEY", get_random_string(50)),
+            SECRET_KEY=envsettings.get("DJANGO_SECRET_KEY", get_random_string(50)),
             TEMPLATES=[
                 {
                     "BACKEND": "django.template.backends.django.DjangoTemplates",
