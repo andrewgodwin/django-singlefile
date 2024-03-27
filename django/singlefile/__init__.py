@@ -1,5 +1,6 @@
 import os
 import sys
+import inspect
 
 from django.conf import settings
 from django.core.wsgi import get_wsgi_application
@@ -17,13 +18,22 @@ class SingleFileApp:
 
     urlpatterns: list
 
-    def __init__(self):
+    def __init__(self, template_directory="templates"):
+        # Figure out project root directory via some... shenanigans
+        previous_filename = inspect.getframeinfo(inspect.currentframe().f_back)[0]
+        self.root_directory = os.path.dirname(previous_filename)
         # Do initial settings configuration
         settings.configure(
             DEBUG=(os.environ.get("DJANGO_DEBUG", "") == "1"),
             ALLOWED_HOSTS=["*"],  # Disable host header validation
             ROOT_URLCONF=__name__,  # Could be fancier with middleware?
             SECRET_KEY=os.environ.get("DJANGO_SECRET_KEY", get_random_string(50)),
+            TEMPLATES=[
+                {
+                    "BACKEND": "django.template.backends.django.DjangoTemplates",
+                    "DIRS": [os.path.join(self.root_directory, template_directory)],
+                },
+            ],
         )
         self.urlpatterns = []
         self.app = get_wsgi_application()

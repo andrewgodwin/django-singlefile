@@ -6,8 +6,8 @@ applications in a similar way to how you'd write Flask applications.
 
 It's still alpha; in particular, I'd like to:
 
- - Add some more environment variable overrides for settings
- - Add in some basic database support
+- Add some more environment variable overrides for settings
+- Add in some basic database support
 
 But hey, it's a fun start.
 
