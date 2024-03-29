@@ -43,6 +43,7 @@ Supported Features
 
 * **Templates**: Put them in a ``templates/`` directory.
 * **Static Files**: Put them in a ``static/`` directory.
+* **Class-Based Views**: Work fine; use ``@app.path()`` on the class itself.
 * **Forms**: Use them as normal.
 
 Unsupported Features
