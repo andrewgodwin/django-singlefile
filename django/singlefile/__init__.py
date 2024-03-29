@@ -19,7 +19,7 @@ class SingleFileApp:
 
     urlpatterns: list
 
-    def __init__(self, template_directory="templates"):
+    def __init__(self, template_directory="templates", static_directory="static"):
         # Figure out project root directory via some... shenanigans
         previous_filename = inspect.getframeinfo(inspect.currentframe().f_back)[0]
         self.root_directory = os.path.dirname(previous_filename)
@@ -36,6 +36,17 @@ class SingleFileApp:
                     "DIRS": [os.path.join(self.root_directory, template_directory)],
                 },
             ],
+            STATIC_URL="static/",
+            STATIC_ROOT=os.path.join(self.root_directory, static_directory),
+            MIDDLEWARE=[
+                "django.middleware.security.SecurityMiddleware",
+                "whitenoise.middleware.WhiteNoiseMiddleware",
+                "django.contrib.sessions.middleware.SessionMiddleware",
+                "django.middleware.common.CommonMiddleware",
+                "django.middleware.csrf.CsrfViewMiddleware",
+                "django.contrib.messages.middleware.MessageMiddleware",
+                "django.middleware.clickjacking.XFrameOptionsMiddleware",
+            ],
         )
         self.urlpatterns = []
         self.app = get_wsgi_application()
@@ -46,7 +57,11 @@ class SingleFileApp:
         """
 
         def inner(view):
-            self.add_urlpattern(path(route, view))
+            # Ensure we dispatch class-based views correctly
+            if hasattr(view, "as_view"):
+                self.add_urlpattern(path(route, view.as_view()))
+            else:
+                self.add_urlpattern(path(route, view))
             return view
 
         return inner
