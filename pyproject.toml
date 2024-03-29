@@ -7,7 +7,7 @@ name = "django-singlefile"
 version = "0.2.0"
 authors = [{ name = "Andrew Godwin", email = "andrew@aeracode.org" }]
 description = "A library to make single-file Django apps easier"
-readme = "README.rst"
+readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "BSD-3-Clause" }
 classifiers = ["Framework :: Django", "Programming Language :: Python :: 3"]
