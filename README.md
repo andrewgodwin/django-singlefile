@@ -52,3 +52,8 @@ them into a single file is a bad idea due to their innate complexity.
 * Models/Migrations (maybe in future, if I can figure out how nicely)
 * Admin
 * Authentication
+
+# Desired Features
+
+* **Project Conversion**: An easy way to take a single-file app like this and
+  expand it into a "full" Django project, like `startproject` would make.
