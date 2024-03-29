@@ -1,6 +1,8 @@
 django-singlefile
 =================
 
+[![PyPI](https://img.shields.io/pypi/v/django-singlefile.svg)](https://pypi.python.org/pypi/django-singlefile)
+
 This is a small library that makes it easier to write single-file Django
 applications in a similar way to how you'd write Flask applications.
 
