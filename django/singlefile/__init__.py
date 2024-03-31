@@ -47,6 +47,7 @@ class SingleFileApp:
                 "django.contrib.messages.middleware.MessageMiddleware",
                 "django.middleware.clickjacking.XFrameOptionsMiddleware",
             ],
+            CSRF_TRUSTED_ORIGINS=["http://*", "https://*"],
         )
         self.urlpatterns = []
         self.app = get_wsgi_application()
