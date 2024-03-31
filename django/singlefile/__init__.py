@@ -19,7 +19,12 @@ class SingleFileApp:
 
     urlpatterns: list
 
-    def __init__(self, template_directory="templates", static_directory="static"):
+    def __init__(
+        self,
+        template_directory: str = "templates",
+        static_directory: str = "static",
+        ssl_header: str | None = None,
+    ):
         # Figure out project root directory via some... shenanigans
         previous_filename = inspect.getframeinfo(inspect.currentframe().f_back)[0]
         self.root_directory = os.path.dirname(previous_filename)
@@ -47,7 +52,7 @@ class SingleFileApp:
                 "django.contrib.messages.middleware.MessageMiddleware",
                 "django.middleware.clickjacking.XFrameOptionsMiddleware",
             ],
-            CSRF_TRUSTED_ORIGINS=["http://*", "https://*"],
+            SECURE_PROXY_SSL_HEADER=(ssl_header, "https") if ssl_header else None,
         )
         self.urlpatterns = []
         self.app = get_wsgi_application()
