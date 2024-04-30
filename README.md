@@ -10,7 +10,7 @@ It's still alpha, but hey, it works for small projects.
 
 ## Example App
 
-```
+```python
 from django.http import HttpResponse
 from django.singlefile import SingleFileApp
 
@@ -27,9 +27,11 @@ if __name__ == "__main__":
     app.main()
 ```
 
-To run the app, you can just call it from the command line::
+To run the app, you can just call it from the command line:
 
-    python app.py runserver
+```bash
+python app.py runserver
+```
 
 Or you can pass the `app` object inside it to a WSGI server as normal!
 
@@ -63,12 +65,12 @@ them into a single file is a bad idea due to their innate complexity.
 
 While allowing full mutable models with migrations would be too much for
 a single-file project - for that, just use a normal Django project - one nice
-way of doing a dynamic site is to pre-compile a read-only SQLite database file
+way of doing a semi-dynamic site is to pre-compile a read-only SQLite database file
 with the content.
 
 This way, you can still use Django models to select data and do queries against
 it to display dynamic pages, but you don't have to worry about migrations or
-a central database server; thus, this is the only mode that we support.
+a central database server. This is the use-case that `singlefile` supports.
 
 To use models, do two things:
 
@@ -81,7 +83,7 @@ To use models, do two things:
 
 Here's a basic example:
 
-```
+```python
 from django.http import HttpResponse
 from django.singlefile import SingleFileApp
 from django.db import models
