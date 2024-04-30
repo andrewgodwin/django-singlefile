@@ -2,6 +2,7 @@ import os
 import sys
 import inspect
 
+from django.apps import AppConfig
 from django.conf import settings
 from django.core.wsgi import get_wsgi_application
 from django.urls import path
@@ -24,26 +25,31 @@ class SingleFileApp:
         template_directory: str = "templates",
         static_directory: str = "static",
         ssl_header: str | None = None,
+        installed_apps: list[str] | None = None,
+        database_file: str | None = None,
     ):
         # Figure out project root directory via some... shenanigans
-        previous_filename = inspect.getframeinfo(inspect.currentframe().f_back)[0]
+        previous_frame = inspect.currentframe().f_back
+        previous_filename = inspect.getframeinfo(previous_frame)[0]
+        previous_module_name = previous_frame.f_globals["__name__"]
         self.root_directory = os.path.dirname(previous_filename)
-        # Do initial settings configuration
+
+        # Prepare settings
         envsettings = EnvironmentSettings()
-        settings.configure(
-            DEBUG=envsettings.get_bool("DJANGO_DEBUG"),
-            ALLOWED_HOSTS=["*"],  # Disable host header validation
-            ROOT_URLCONF=__name__,  # Could be fancier with middleware?
-            SECRET_KEY=envsettings.get("DJANGO_SECRET_KEY", get_random_string(50)),
-            TEMPLATES=[
+        settings_values = {
+            "DEBUG": envsettings.get_bool("DJANGO_DEBUG"),
+            "ALLOWED_HOSTS": ["*"],  # Disable host header validation
+            "ROOT_URLCONF": __name__,  # Could be fancier with middleware?
+            "SECRET_KEY": envsettings.get("DJANGO_SECRET_KEY", get_random_string(50)),
+            "TEMPLATES": [
                 {
                     "BACKEND": "django.template.backends.django.DjangoTemplates",
                     "DIRS": [os.path.join(self.root_directory, template_directory)],
                 },
             ],
-            STATIC_URL="static/",
-            STATIC_ROOT=os.path.join(self.root_directory, static_directory),
-            MIDDLEWARE=[
+            "STATIC_URL": "static/",
+            "STATIC_ROOT": os.path.join(self.root_directory, static_directory),
+            "MIDDLEWARE": [
                 "django.middleware.security.SecurityMiddleware",
                 "whitenoise.middleware.WhiteNoiseMiddleware",
                 "django.contrib.sessions.middleware.SessionMiddleware",
@@ -52,8 +58,25 @@ class SingleFileApp:
                 "django.contrib.messages.middleware.MessageMiddleware",
                 "django.middleware.clickjacking.XFrameOptionsMiddleware",
             ],
-            SECURE_PROXY_SSL_HEADER=(ssl_header, "https") if ssl_header else None,
-        )
+            "SECURE_PROXY_SSL_HEADER": (ssl_header, "https") if ssl_header else None,
+            "INSTALLED_APPS": [
+                SingleFileAppConfig(self.root_directory, previous_module_name)
+            ]
+            + (installed_apps or []),
+            "DEFAULT_AUTO_FIELD": "django.db.models.BigAutoField",
+        }
+
+        # Add database if needed
+        if database_file:
+            settings_values["DATABASES"] = {
+                "default": {
+                    "ENGINE": "django.db.backends.sqlite3",
+                    "NAME": f"file:{database_file}?mode=ro",
+                }
+            }
+
+        # Finish setting up Django
+        settings.configure(**settings_values)
         self.urlpatterns = []
         self.app = get_wsgi_application()
 
@@ -91,6 +114,15 @@ class SingleFileApp:
         Dispatch point - has to be called for now.
         """
         execute_from_command_line(sys.argv)
+
+
+class SingleFileAppConfig(AppConfig):
+
+    def __init__(self, path: str, module_name: str):
+        self.name = module_name
+        self.module = sys.modules[module_name]
+        self.label = "app"
+        self.path = path
 
 
 # This gets set by the app __init__
